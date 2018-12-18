@@ -11,6 +11,7 @@ from . import __version__, __description__
 
 log = logging.getLogger(__name__)
 LOG_NOTIFY = 60
+IP_API = "https://api.ipify.org"
 ENV_RECORD = "RECORD"
 ENV_ZONEID = "ZONEID"
 ENV_NOTIFY = "NOTIFY"
@@ -21,7 +22,8 @@ def parse_args(argv=None):
 
     parser = argparse.ArgumentParser(prog=sys.argv[0], allow_abbrev=True,
                                      description=__description__)
-    parser.add_argument('--version', action='version', version=__version__,
+    parser.add_argument('--version', action='version',
+                        version=f'%(prog)s {__version__}',
                         help='Display version information.')
     parser.add_argument('--record', action='store',
                         help=f'Supply the fully qualified domain record name. '
@@ -50,7 +52,7 @@ def parse_args(argv=None):
 
 
 def get_public_ip():
-    return urllib.request.urlopen('https://api.ipify.org').read().decode('utf-8')
+    return urllib.request.urlopen(IP_API).read().decode('utf-8')
 
 
 def get_current_record_value(client, zoneid, record_name, record_type='A'):
@@ -131,7 +133,7 @@ def upsert_record(client, zoneid, record_name, value, record_type='A', ttl=300):
     response = client.change_resource_record_sets(
         HostedZoneId=zoneid,
         ChangeBatch={
-            'Comment': 'Update record initiated by dnsupdater.py',
+            'Comment': 'Update record initiated by r53ddns.py',
             'Changes': [
                 {
                     'Action': 'UPSERT',
@@ -165,7 +167,7 @@ def run():
     record = opts.record or os.getenv(ENV_RECORD, None)
     zoneid = opts.zoneid or os.getenv(ENV_ZONEID, None)
 
-    if not all([x is not None for x in {record, zoneid}]):
+    if not all([x for x in {record, zoneid}]):
         log.critical('Record Name or Zone ID not supplied. Set RECORD/ZONEID '
                      'environement variables, or supply via arguments.')
         return 1
