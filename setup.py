@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
-from r53ddns import __version__, __description__
+from r53ddns.r53ddns import __version__, __description__
 
 requires = [
     'boto3==1.9.66'

@@ -7,7 +7,12 @@ import urllib.request
 
 import boto3
 
-from . import __version__, __description__
+__version__ = '0.2.0b2'
+__description__ = """Simple AWS Route 53 DNS Updater.
+Dynamically update a Route 53 DNS record to the current public IP of the 
+computer/network it is executed on. Records will only be modified if the 
+current value and public IP differ.
+"""
 
 log = logging.getLogger(__name__)
 LOG_NOTIFY = 60
@@ -47,6 +52,7 @@ def parse_args(argv=None):
                              'will be displayed, but no changes will be made.')
     parser.add_argument('--verbosity', '-v', action='count', default=0,
                         help='Increase log message verbosity.')
+    parser.add_argument('--debug', action='store_true', help='Enable debug logging.')
 
     return parser.parse_args(args)
 
@@ -86,9 +92,10 @@ def get_current_record_value(client, zoneid, record_name, record_type='A'):
         StartRecordType=record_type,
         MaxItems='1'
     )
+    log.debug(f'Got response for current record set: {resp}')
     record_sets = resp['ResourceRecordSets'][0]
     if record_sets.get('Name', None) == record_name:
-        return record_sets['ResourceRecords']
+        return record_sets['ResourceRecords'][0]['Value']
     else:
         return None
 
@@ -159,7 +166,9 @@ def run():
     log.addHandler(stream_hdlr)
 
     opts = parse_args()
-    if opts.verbosity > 1:
+    if opts.debug:
+        log.setLevel(logging.DEBUG)
+    elif opts.verbosity > 1 or opts.dryrun:
         log.setLevel(logging.INFO)
     else:
         log.setLevel(logging.ERROR)
@@ -190,7 +199,7 @@ def run():
 
     new_value = get_public_ip()
     if record_value == new_value:
-        log.info('Route 53 record already matches public IP address')
+        log.info(f'Route 53 record {record_value} already matches public IP address {new_value}')
         return 0
 
     # Update Route 53 Record to new Public IP value
@@ -207,3 +216,7 @@ def run():
     log.log(LOG_NOTIFY, message)
     log.info(message)
     return 0
+
+
+if __name__ == '__main__':
+    sys.exit(run())
