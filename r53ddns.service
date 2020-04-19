@@ -1,0 +1,8 @@
+[Unit]
+Description=AWS Route53 Dynamic DNS Updater
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/r53ddns
+ExecStart=/bin/docker --rm --env-file ./r53ddns.env --name r53ddns-job r53ddns --debug

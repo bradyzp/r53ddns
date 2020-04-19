@@ -1,0 +1,10 @@
+[Unit]
+Description=Execute r53ddns service on a timer
+
+[Timer]
+OnBootSec=5min
+OnActiveSec=12hr
+Unit=r53ddns.service
+
+[Install]
+WantedBy=multi-user.target

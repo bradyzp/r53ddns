@@ -7,7 +7,7 @@ import urllib.request
 
 import boto3
 
-__version__ = '0.2.0b2'
+__version__ = '0.3.0'
 __description__ = """Simple AWS Route 53 DNS Updater.
 Dynamically update a Route 53 DNS record to the current public IP of the 
 computer/network it is executed on. Records will only be modified if the 
@@ -178,7 +178,7 @@ def run():
 
     if not all([x for x in {record, zoneid}]):
         log.critical('Record Name or Zone ID not supplied. Set RECORD/ZONEID '
-                     'environement variables, or supply via arguments.')
+                     'environment variables, or supply via arguments.')
         return 1
 
     notify = opts.topic_arn or os.getenv(ENV_NOTIFY, None)

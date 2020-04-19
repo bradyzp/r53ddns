@@ -15,6 +15,10 @@ A valid AWS credential file is required for the user executing the utility. This
 is typically placed in ~/.aws/credentials or the credentials may be specified
 using environment variables.
 
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+- AWS_DEFAULT_REGION
+
 .. code-block::
 
     [default]
@@ -110,3 +114,20 @@ every 5 minutes thereafter.
 
     [Install]
     WantedBy=timers.target
+
+
+Building the Docker Image
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+From the project root:
+
+.. code-block::
+
+    docker image build . -t r53ddns
+
+Run the docker image
+^^^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+
+    docker run -it --rm -e AWS_SECRET_ACCESS_KEY=<secret_key> --name r53ddns-job r53ddns
